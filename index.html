@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
     
     <title>The Bubble-Verse | A Decentralized Universe</title>
     <link rel="stylesheet" href="style.css">
@@ -34,7 +34,8 @@
                 "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
                 "gun": "./src/data/gun-lib.js",
                 "helia": "https://esm.sh/helia@latest",
-                "@helia/strings": "https://esm.sh/@helia/strings@latest"
+                "@helia/strings": "https://esm.sh/@helia/strings@latest",
+                "@tweenjs/tween.js": "https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@23.1.1/dist/tween.esm.js"
             }
         }
     </script>
