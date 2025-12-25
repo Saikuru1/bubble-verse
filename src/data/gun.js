@@ -1,52 +1,35 @@
 /**
- * gun.js
- * The "Shared Nervous System."
- * Syncs bubble coordinates and CIDs across all users in real-time.
+ * gun.js - The "Shared Nervous System"
  */
+import 'gun'; // This loads the library globally via the importmap
+const Gun = window.Gun; 
 
-import 'gun';
-const Gun = window.Gun;
-
-// Connect to a few public "relay" peers to help discovery
+// Connect to a public relay
 const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
 
 export const StarMap = {
-  
-  // 1. A reference to the "galaxy" of bubbles
   space: gun.get('universal-bubble-verse-v1'),
 
-  /**
-   * 2. Broadcast a new bubble to the universe
-   * @param {string} cid - The IPFS hash from ipfs.js
-   * @param {object} coords - {x, y, z} from gravity.js
-   */
   broadcast(cid, coords) {
     this.space.get(cid).put({
       cid: cid,
       x: coords.x,
       y: coords.y,
       z: coords.z,
+      label: coords.label || "Thought",
       timestamp: Date.now(),
       views: 1
     });
   },
 
-  /**
-   * 3. Listen for new bubbles appearing in the void
-   * @param {function} callback - What to do when a bubble is found
-   */
   observe(callback) {
     this.space.map().on((data, cid) => {
-      if (data) {
-        // This triggers whenever ANYONE in the world adds a bubble
+      if (data && data.cid) {
         callback(data);
       }
     });
   },
 
-  /**
-   * 4. Update a bubble's mass (Entropy/View logic)
-   */
   pulse(cid) {
     const bubble = this.space.get(cid);
     bubble.get('views').once((v) => {

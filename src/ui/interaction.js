@@ -4,8 +4,9 @@
  * Handles clicking bubbles and displaying the anonymous paper.
  */
 
+import * as THREE from 'three';
 import { IPFSNode } from '../data/ipfs.js';
-import { TWEEN } from '@tweenjs/tween.js'; // For smooth camera zooming
+import * as TWEEN from '@tweenjs/tween.js'; // Use the * as syntax
 
 export const Interaction = {
   
