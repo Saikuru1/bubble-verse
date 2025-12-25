@@ -1,5 +1,6 @@
 /**
  * input.js
+ * The "Voice of the Voyager."
  */
 import { IPFSNode } from '../data/ipfs.js';
 import { GravityEngine } from '../physics/gravity.js';
@@ -11,10 +12,7 @@ export const UserInput = {
     const box = document.getElementById('whisper-box');
     const button = document.getElementById('ignite-button');
 
-    if (!box || !button) {
-        console.error("UI Elements missing! Check your index.html IDs.");
-        return;
-    }
+    if (!box || !button) return;
 
     box.addEventListener('input', () => {
       box.style.height = 'auto';
@@ -22,20 +20,19 @@ export const UserInput = {
     });
 
     button.addEventListener('click', async () => {
-      console.log("Ignition Sequence Started..."); // Debug check
       const text = box.value.trim();
-      
       if (text.length > 0) {
+        console.log("Ignition started for text:", text.substring(0, 20) + "...");
         button.style.pointerEvents = 'none';
         button.style.opacity = '0.5';
         
         try {
             await this.launch(text);
-            console.log("Thought Launched Successfully!");
             box.value = '';
             box.style.height = 'auto';
+            console.log("Launch successful.");
         } catch (err) {
-            console.error("Launch Failed:", err);
+            console.error("Launch failed:", err);
         } finally {
             button.style.pointerEvents = 'all';
             button.style.opacity = '1';
@@ -60,7 +57,7 @@ export const UserInput = {
   animateLaunch() {
     const btn = document.getElementById('ignite-button');
     btn.classList.add('ignite-flash');
-    // Using an arrow function here prevents CSP string-eval errors
+    // Function wrap to satisfy CSP
     setTimeout(() => {
         btn.classList.remove('ignite-flash');
     }, 500);
