@@ -14,6 +14,9 @@
         window.global = window;
         window.module = { exports: {} };
         window.process = { env: { NODE_ENV: 'production' } };
+        
+        // Debugging Hook: Check if the button is even reachable
+        console.log("Global Shims Loaded. CSP should be active.");
     </script>
 </head>
 <body>
