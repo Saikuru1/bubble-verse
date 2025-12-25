@@ -1,63 +1,65 @@
-import { createHelia } from 'helia';
-import { strings } from '@helia/strings';
+/**
+ * input.js
+ * The "Voice of the Voyager."
+ */
+import { IPFSNode } from '../data/ipfs.js';
+import { GravityEngine } from '../physics/gravity.js';
+import { StarMap } from '../data/gun.js';
+import { NLP } from '../utils/nlp.js';
 
-let heliaNode = null;
-let s = null;
+export const UserInput = {
+  init() {
+    const box = document.getElementById('whisper-box');
+    const button = document.getElementById('ignite-button');
 
-export const IPFSNode = {
-    /**
-     * Initializes the Helia node if it hasn't been already.
-     */
-    async init() {
-        if (heliaNode) return;
+    if (!box || !button) return;
+
+    box.addEventListener('input', () => {
+      box.style.height = 'auto';
+      box.style.height = box.scrollHeight + 'px';
+    });
+
+    button.addEventListener('click', async () => {
+      const text = box.value.trim();
+      if (text.length > 0) {
+        console.log("Ignition started for text:", text.substring(0, 20) + "...");
+        button.style.pointerEvents = 'none';
+        button.style.opacity = '0.5';
+        
         try {
-            heliaNode = await createHelia();
-            s = strings(heliaNode);
-            console.log("Universe Matter Initialized: IPFS is Online.");
-        } catch (error) {
-            console.error("IPFS Initialization Failed:", error);
+            await this.launch(text);
+            box.value = '';
+            box.style.height = 'auto';
+            console.log("Launch successful.");
+        } catch (err) {
+            console.error("Launch failed:", err);
+        } finally {
+            button.style.pointerEvents = 'all';
+            button.style.opacity = '1';
+            this.animateLaunch();
         }
-    },
+      }
+    });
+  },
 
-    /**
-     * Internal helper to make sure we don't try to use IPFS 
-     * before it's finished booting up.
-     */
-    async ensureReady() {
-        if (!heliaNode || !s) {
-            console.log("Waiting for IPFS Substance Engine...");
-            await this.init();
-        }
-    },
+  async launch(text) {
+    const label = NLP.extractLighthouse(text);
+    const cid = await IPFSNode.crystallize(text);
+    const coords = GravityEngine.calculateOrigin(text);
 
-    /**
-     * Converts raw text into a CID (Content Identifier).
-     */
-    async crystallize(text) {
-        await this.ensureReady();
-        try {
-            const cid = await s.add(text);
-            console.log("Substance Crystallized:", cid.toString());
-            return cid.toString();
-        } catch (error) {
-            console.error("Crystallization Failed:", error);
-            return null;
-        }
-    },
+    StarMap.broadcast(cid, {
+      ...coords,
+      label: label,
+      timestamp: Date.now()
+    });
+  },
 
-    /**
-     * Retrieves raw text from a CID.
-     */
-    async hydrate(cid) {
-        await this.ensureReady();
-        try {
-            // CID needs to be handled as a string or a CID object
-            // s.get is very reliable once helia is ready
-            const result = await s.get(cid);
-            return result;
-        } catch (e) {
-            console.error("IPFS Hydration Error:", e);
-            return "The void remains silent (Data not found).";
-        }
-    }
+  animateLaunch() {
+    const btn = document.getElementById('ignite-button');
+    btn.classList.add('ignite-flash');
+    // Function wrap to satisfy CSP
+    setTimeout(() => {
+        btn.classList.remove('ignite-flash');
+    }, 500);
+  }
 };

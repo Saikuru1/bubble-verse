@@ -1,7 +1,3 @@
-/**
- * input.js
- * The "Voice of the Voyager."
- */
 import { IPFSNode } from '../data/ipfs.js';
 import { GravityEngine } from '../physics/gravity.js';
 import { StarMap } from '../data/gun.js';
@@ -22,42 +18,53 @@ export const UserInput = {
     button.addEventListener('click', async () => {
       const text = box.value.trim();
       if (text.length > 0) {
-        console.log("Ignition started for text:", text.substring(0, 20) + "...");
         button.style.pointerEvents = 'none';
         button.style.opacity = '0.5';
         
         try {
+            // Start the sequence
             await this.launch(text);
+            
+            // Clean up UI
             box.value = '';
             box.style.height = 'auto';
-            console.log("Launch successful.");
+            this.animateLaunch();
         } catch (err) {
-            console.error("Launch failed:", err);
+            console.error("Ignition Failure:", err);
         } finally {
             button.style.pointerEvents = 'all';
             button.style.opacity = '1';
-            this.animateLaunch();
         }
       }
     });
   },
 
   async launch(text) {
-    const label = NLP.extractLighthouse(text);
+    // A. Crystallize (IPFS)
     const cid = await IPFSNode.crystallize(text);
+
+    // B. Validation: Stop if the matter didn't form
+    if (!cid) {
+        throw new Error("Matter failed to crystallize in the void.");
+    }
+
+    // C. Calculate Identity
+    const label = NLP.extractLighthouse(text);
     const coords = GravityEngine.calculateOrigin(text);
 
+    // D. Broadcast (GunDB)
     StarMap.broadcast(cid, {
       ...coords,
       label: label,
       timestamp: Date.now()
     });
+    
+    console.log(`Thought '${label}' flung into coordinates:`, coords);
   },
 
   animateLaunch() {
     const btn = document.getElementById('ignite-button');
     btn.classList.add('ignite-flash');
-    // Function wrap to satisfy CSP
     setTimeout(() => {
         btn.classList.remove('ignite-flash');
     }, 500);
