@@ -8,6 +8,11 @@
     <title>The Bubble-Verse | A Decentralized Universe</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap" rel="stylesheet">
+
+    <script>
+        // Fix for GunDB environment compatibility
+        window.global = window;
+    </script>
 </head>
 <body>
 
@@ -27,7 +32,7 @@
         {
             "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-                "gun": "https://cdn.jsdelivr.net/npm/gun@0.2023.1215/gun.js",
+                "gun": "./src/data/gun-lib.js",
                 "helia": "https://esm.sh/helia@latest",
                 "@helia/strings": "https://esm.sh/@helia/strings@latest"
             }
