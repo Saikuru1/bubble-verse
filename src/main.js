@@ -13,9 +13,9 @@ import { UserInput } from './ui/input.js';
 
 // 1. Setup the Scene
 const scene = new THREE.Scene();
-// We start the camera at Z=200 so we can see the center (0,0,0)
+// Start camera pulled back so we can see the origin
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100000);
-camera.position.set(0, 0, 200); 
+camera.position.set(0, 0, 300); 
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const clock = new THREE.Clock();
@@ -31,18 +31,17 @@ WarpDrive.init(camera);
 UserInput.init(); 
 
 // 3. Visual Helpers: The Starfield
-// This ensures the screen isn't just black when you start
 function createStarfield() {
     const vertices = [];
     for (let i = 0; i < 5000; i++) {
-        const x = THREE.MathUtils.randFloatSpread(10000);
-        const y = THREE.MathUtils.randFloatSpread(10000);
-        const z = THREE.MathUtils.randFloatSpread(10000);
+        const x = THREE.MathUtils.randFloatSpread(15000);
+        const y = THREE.MathUtils.randFloatSpread(15000);
+        const z = THREE.MathUtils.randFloatSpread(15000);
         vertices.push(x, y, z);
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    const material = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, transparent: true, opacity: 0.5 });
+    const material = new THREE.PointsMaterial({ color: 0xffffff, size: 1.2, transparent: true, opacity: 0.4 });
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 }
@@ -57,7 +56,7 @@ function createBubbleTexture() {
     const ctx = canvas.getContext('2d');
     const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)'); 
-    gradient.addColorStop(0.2, 'rgba(0, 255, 255, 0.8)'); 
+    gradient.addColorStop(0.3, 'rgba(0, 255, 255, 0.8)'); 
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 64, 64);
@@ -66,27 +65,48 @@ function createBubbleTexture() {
 const sparkTexture = createBubbleTexture();
 
 function createBubbleMesh(data) {
-    // Ensure size is at least 5 so it's visible
-    const size = Math.log((data.views || 0) + 2) * 5; 
-    const geometry = new THREE.SphereGeometry(size, 16, 16);
+    // INCREASED SIZE: Base size of 15 + growth
+    const size = 15 + (Math.log((data.views || 0) + 2) * 8); 
+    const geometry = new THREE.SphereGeometry(size, 32, 32);
+    
     const material = new THREE.MeshBasicMaterial({ 
         color: 0x00ffff, 
         map: sparkTexture,
         transparent: true, 
-        opacity: 0.9 
+        opacity: 0.9,
+        blending: THREE.AdditiveBlending // Makes the bubble "glow"
     });
+    
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(data.x, data.y, data.z);
     mesh.userData = { cid: data.cid }; 
+
+    // ADD A GLOW HALO: This makes the bubble visible even from extreme distances
+    const spriteMaterial = new THREE.SpriteMaterial({
+        map: sparkTexture,
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+    });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(size * 8, size * 8, 1); // Halo is 8x the bubble size
+    mesh.add(sprite);
+    
     return mesh;
 }
 
 // 5. Sync with the Network
 StarMap.observe((data) => {
+    if (!data.cid) return;
+
     if (bubblesInSpace.has(data.cid)) {
         const mesh = bubblesInSpace.get(data.cid);
+        // Smoothly update position if it drifts
         mesh.position.set(data.x, data.y, data.z);
-        mesh.scale.setScalar(1); // Update logic if needed
+        // Update size based on views
+        const newSize = 1 + (Math.log((data.views || 0) + 2) * 0.5);
+        mesh.scale.setScalar(newSize);
     } else {
         const newMesh = createBubbleMesh(data);
         scene.add(newMesh);
@@ -103,8 +123,8 @@ function animate() {
     FlightController.update(delta);
     WarpDrive.update();
     
-    // Slow drift of the stars
-    scene.rotation.y += 0.0001; 
+    // Slow drift of the entire scene for cinematic effect
+    scene.rotation.y += 0.00005; 
     
     renderer.render(scene, camera);
 }
