@@ -4,7 +4,8 @@
  * Syncs bubble coordinates and CIDs across all users in real-time.
  */
 
-import Gun from 'gun';
+import 'gun';
+const Gun = window.Gun;
 
 // Connect to a few public "relay" peers to help discovery
 const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);

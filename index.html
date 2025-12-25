@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss:; style-src 'self' https: 'unsafe-inline';">
     
-    <title>The Bubble-Verse | A Decentralized Universe</title>
+    <title>The Bubble-Verse</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap" rel="stylesheet">
 
     <script>
-        // Fix for GunDB environment compatibility
+        // GunDB needs these globals defined before it loads
         window.global = window;
+        var module = { exports: {} };
     </script>
 </head>
 <body>
-
-    <div id="search-container">
-        <input type="text" id="warp-search" placeholder="Search concepts to warp...">
-    </div>
-
+    <div id="search-container"><input type="text" id="warp-search" placeholder="Search..."></div>
     <div id="ui-layer">
         <div id="input-container">
-            <textarea id="whisper-box" placeholder="Whisper your thoughts to the void..." spellcheck="false"></textarea>
-            <div id="ignite-button" title="Ignite into the Void"></div>
+            <textarea id="whisper-box" placeholder="Whisper to the void..."></textarea>
+            <div id="ignite-button"></div>
         </div>
-        <div id="hint-text">Use WASD to fly | Tap bubbles to dive</div>
     </div>
 
     <script type="importmap">
@@ -39,8 +34,6 @@
             }
         }
     </script>
-    
     <script type="module" src="./src/main.js"></script>
-
 </body>
 </html>
